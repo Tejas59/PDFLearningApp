@@ -7,23 +7,26 @@ import { cn } from "@/lib/utils";
 import { useSendMessage } from "@/api/message.api";
 
 interface ChatInputProps {
-  isLoading?: boolean;
   setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
   sidebarOpen: boolean;
 }
 
-const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
-  const { mutate, data } = useSendMessage();
-  console.log(data);
+const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
+  const { mutateAsync, isPending } = useSendMessage();
+  console.log({ isPending });
+
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<unknown>(null);
+  const [quizMode, setQuizMode] = useState(false);
 
+  console.log({ data });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileClick = () => {
-    if (!isLoading) fileInputRef.current?.click();
+    if (!isPending) fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,13 +53,23 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() || file) {
-      mutate({ message: input, file: file ?? undefined });
-      setInput("");
-      setFile(null);
+    if (!input.trim() && !file) return;
+
+    try {
+      const res = await mutateAsync({
+        message: input,
+        file: file ?? undefined,
+      });
+      console.log("AI Response:", res.message);
+      setData(res);
+    } catch (err) {
+      console.error("Mutation error:", err);
     }
+
+    setInput("");
+    setFile(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -91,8 +104,8 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
         />
 
         {file && (
-          <div className="flex items-center justify-between bg-white border rounded-md p-2 mb-2 text-sm text-gray-700">
-            <span className="truncate">{file.name}</span>
+          <div className="flex items-center justify-between bg-white border rounded-md p-2 mb-2 text-sm text-gray-700 max-w-60">
+            <span className="truncate ">{file.name}</span>
             <button
               type="button"
               onClick={removeFile}
@@ -116,7 +129,7 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isLoading}
+          disabled={isPending || quizMode}
           rows={1}
         />
 
@@ -126,7 +139,7 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
               type="button"
               variant="ghost"
               size="icon"
-              disabled={isLoading || !!file}
+              disabled={isPending || !!file}
               onClick={handleFileClick}
               className="h-9 w-9 rounded-md border border-gray-300"
             >
@@ -137,8 +150,11 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
               type="button"
               variant="ghost"
               size="icon"
-              disabled={isLoading || !file}
-              className="h-9 w-9 rounded-md border border-gray-300"
+              disabled={isPending || !file}
+              className={`h-9 w-9 rounded-md border border-gray-3001 ${
+                quizMode && "bg-black text-white"
+              }`}
+              onClick={() => setQuizMode(!quizMode)}
             >
               <Brain className="h-5 w-5 text-gray-600" />
             </Button>
@@ -148,7 +164,7 @@ const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
             type="submit"
             variant="ghost"
             size="icon"
-            disabled={isLoading || (!input.trim() && !file)}
+            disabled={isPending || (!input.trim() && !file)}
             className={cn(
               "bg-blue-600 text-white h-9 w-9 p-2 rounded-md ",
               !input.trim() && !file && "opacity-50 cursor-not-allowed"

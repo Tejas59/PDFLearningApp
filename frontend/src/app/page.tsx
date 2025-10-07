@@ -1,20 +1,22 @@
 "use client";
 import ChatInput from "@/components/chat/ChatInput";
 import ChatSidebar from "@/components/chat/ChatSidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 export default function Home() {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleClosePdf = () => setFileUrl(null);
 
+  useEffect(() => {
+    setSidebarOpen(!fileUrl);
+  }, [fileUrl]);
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gray-50">
-      <div className="hidden md:block">
-        <ChatSidebar closeSidebar={!fileUrl} />
-      </div>
-
+      <ChatSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div
         className={`flex flex-1 flex-col md:flex-row items-stretch transition-all duration-300`}
       >
@@ -27,9 +29,8 @@ export default function Home() {
             <h2 className="text-2xl font-bold">Hi, I&apos;m Tejas Vaidya.</h2>
             <p className="text-muted-foreground">How can I help you today?</p>
           </div>
-
           <div className="w-full flex justify-center items-end p-6 md:p-8">
-            <ChatInput setFileUrl={setFileUrl} sidebarOpen={!fileUrl} />
+            <ChatInput setFileUrl={setFileUrl} sidebarOpen={sidebarOpen} />
           </div>
 
           {fileUrl && (

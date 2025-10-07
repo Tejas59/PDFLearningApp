@@ -5,7 +5,13 @@ import { isToday, isYesterday, subDays, isAfter } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Menu, MessageSquarePlus, PanelLeft, Trash2 } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  MessageSquarePlus,
+  PanelLeft,
+  Trash2,
+} from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import {
   Sheet,
@@ -14,6 +20,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 
 interface Chat {
   _id: string;
@@ -26,10 +39,13 @@ interface SidebarSectionProps {
   pathname: string;
 }
 
-const ChatSidebar = ({ closeSidebar }: { closeSidebar: boolean }) => {
-  const pathname = usePathname();
+interface chatSidebarPorps {
+  sidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
+  const pathname = usePathname();
 
   const chats = [{}];
   const todayChats: Chat[] = [];
@@ -53,10 +69,6 @@ const ChatSidebar = ({ closeSidebar }: { closeSidebar: boolean }) => {
       olderChats.push(chat);
     }
   });
-
-  useEffect(() => {
-    setSidebarOpen(closeSidebar);
-  }, [closeSidebar]);
 
   const SidebarSection = ({ title, chats, pathname }: SidebarSectionProps) => {
     if (chats.length === 0) return null;
@@ -143,6 +155,52 @@ const ChatSidebar = ({ closeSidebar }: { closeSidebar: boolean }) => {
           )}
         </>
       </ScrollArea>
+
+      <div className="border-t p-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-6 hover:bg-gray-100"
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>T</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-medium text-gray-900 truncate max-w-[160px]">
+                  My Profile
+                </span>
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-64 p-2 rounded-xl shadow-lg border border-gray-200"
+            align="start"
+            side="top"
+          >
+            <div className="flex items-center gap-3 p-3 border-b border-gray-100">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>Tejas</AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  Tejas
+                </p>
+                <p className="text-xs text-gray-500 truncate">Vaidya</p>
+              </div>
+            </div>
+
+            <DropdownMenuItem
+              className="flex items-center mt-2 gap-2 p-3 rounded-lg cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-100"
+              // onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm">Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 

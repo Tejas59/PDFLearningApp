@@ -8,5 +8,5 @@ export const apiFetch = async (endpoint: string, options?: RequestInit) => {
         throw new Error(`API request failed: ${response.statusText}`);
     }
 
-    return response.json();
+    return response;
 };
