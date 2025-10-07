@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { isToday, isYesterday, subDays, isAfter } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import {
   MessageSquarePlus,
   PanelLeft,
   Trash2,
+  LogIn,
 } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import {
@@ -26,7 +27,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useLogout } from "@/api/auth.api";
+import { userAuthStore } from "@/store/userAuthStore";
+import { useRouter } from "next/navigation";
 
 interface Chat {
   _id: string;
@@ -45,7 +49,10 @@ interface chatSidebarPorps {
 }
 
 const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
+  const logoutMutation = useLogout();
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = userAuthStore();
 
   const chats = [{}];
   const todayChats: Chat[] = [];
@@ -69,6 +76,16 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       olderChats.push(chat);
     }
   });
+
+  const handleLogout = async () => {
+    try {
+      const res = await logoutMutation.mutateAsync();
+      console.log("Logout success:", res);
+      logout();
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   const SidebarSection = ({ title, chats, pathname }: SidebarSectionProps) => {
     if (chats.length === 0) return null;
@@ -157,49 +174,66 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       </ScrollArea>
 
       <div className="border-t p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 px-3 py-6 hover:bg-gray-100"
+        {isAuthenticated ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 px-3 py-6 hover:bg-gray-100"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-medium text-gray-900 truncate max-w-[160px]">
+                    My Profile
+                  </span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-64 p-2 rounded-xl shadow-lg border border-gray-200"
+              align="start"
+              side="top"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>T</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col items-start">
-                <span className="text-sm font-medium text-gray-900 truncate max-w-[160px]">
-                  My Profile
-                </span>
+              <div className="flex items-center gap-3 p-3 border-b border-gray-100">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {user?.email}
+                  </p>
+                </div>
               </div>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-64 p-2 rounded-xl shadow-lg border border-gray-200"
-            align="start"
-            side="top"
+
+              <DropdownMenuItem
+                className="flex items-center mt-2 gap-2 p-3 rounded-lg cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-100"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="text-sm">Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 px-3 py-6 hover:bg-gray-100"
+            onClick={() => router.push("/login")}
           >
-            <div className="flex items-center gap-3 p-3 border-b border-gray-100">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback>Tejas</AvatarFallback>
-              </Avatar>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  Tejas
-                </p>
-                <p className="text-xs text-gray-500 truncate">Vaidya</p>
-              </div>
-            </div>
-
-            <DropdownMenuItem
-              className="flex items-center mt-2 gap-2 p-3 rounded-lg cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-100"
-              // onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="text-sm">Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <LogIn className="h-4 w-4" />
+            <span className="text-sm">LogIn</span>{" "}
+          </Button>
+        )}
       </div>
     </div>
   );

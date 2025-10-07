@@ -11,11 +11,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useLogin } from "@/api/auth.api";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { userAuthStore } from "@/store/userAuthStore";
 
 export const LoginModal = ({
   className,
   ...props
 }: React.ComponentProps<"div">) => {
+  const router = useRouter();
+  const loginMutation = useLogin();
+  const setUser = userAuthStore((state) => state.setUser);
+  const { data } = loginMutation;
+  console.log("data", data);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const handleLogin = async () => {
+    try {
+      const res = await loginMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password,
+      });
+      if (res.user) {
+        setUser(res.user);
+      }
+      console.log("Login success:", res.user);
+      router.push("/");
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -26,7 +56,12 @@ export const LoginModal = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}
+          >
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
@@ -35,20 +70,27 @@ export const LoginModal = ({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
                   Login
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
                 </Button>
               </div>
             </div>
@@ -58,7 +100,7 @@ export const LoginModal = ({
                 href="/registration"
                 className="underline underline-offset-4"
               >
-                Sign up
+                Register
               </Link>
             </div>
           </form>

@@ -11,11 +11,34 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useRegister } from "@/api/auth.api";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const RegistrationModal = ({
   className,
   ...props
 }: React.ComponentProps<"div">) => {
+  const registerMutation = useRegister();
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleRegister = async () => {
+    try {
+      const res = await registerMutation.mutateAsync(formData);
+      if (res.ok) {
+        router.push("/login");
+      }
+      console.log("Registration success:", res);
+    } catch (err) {
+      console.error("Registration failed:", err);
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -26,7 +49,12 @@ export const RegistrationModal = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleRegister();
+            }}
+          >
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Name</Label>
@@ -35,6 +63,9 @@ export const RegistrationModal = ({
                   type="Name"
                   placeholder="Tejas Vaidya"
                   required
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                 />
               </div>
               <div className="grid gap-3">
@@ -44,20 +75,27 @@ export const RegistrationModal = ({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
-                  Login
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
+                  Register
                 </Button>
               </div>
             </div>

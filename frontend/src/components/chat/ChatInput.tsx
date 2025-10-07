@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Brain, Paperclip, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSendMessage } from "@/api/message.api";
+import { userAuthStore } from "@/store/userAuthStore";
 
 interface ChatInputProps {
   setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
@@ -13,7 +14,7 @@ interface ChatInputProps {
 
 const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
   const { mutateAsync, isPending } = useSendMessage();
-  console.log({ isPending });
+  const {isAuthenticated} = userAuthStore();
 
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -150,7 +151,7 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
               type="button"
               variant="ghost"
               size="icon"
-              disabled={isPending || !file}
+              disabled={isPending || !file || !isAuthenticated}
               className={`h-9 w-9 rounded-md border border-gray-3001 ${
                 quizMode && "bg-black text-white"
               }`}
@@ -179,3 +180,5 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
 };
 
 export default ChatInput;
+
+

@@ -62,7 +62,7 @@ export const loginFun = async (req: Request, res: Response) => {
         maxAge: 7 * 24 * 60 * 60 * 100,
     });
 
-    return res.json({ sucess: true });
+    return res.json({ sucess: true, user: { id: user._id, name: user.name, email: user.email } });
 };
 
 export const logoutFun = async (res: Response) => {

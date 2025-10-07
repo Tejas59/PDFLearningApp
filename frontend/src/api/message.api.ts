@@ -19,6 +19,7 @@ const sendMessage = async ({ message, file }: SendMessageOptions) => {
     const response = await apiFetch("/message", {
         method: "POST",
         body: formData,
+        credentials: "include",
     });
 
     if (!response.ok) throw new Error("Failed to send message");

@@ -3,16 +3,26 @@ import ChatInput from "@/components/chat/ChatInput";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { userAuthStore } from "@/store/userAuthStore";
+
 
 export default function Home() {
+  
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { isAuthenticated } = userAuthStore();
 
   const handleClosePdf = () => setFileUrl(null);
 
   useEffect(() => {
     setSidebarOpen(!fileUrl);
   }, [fileUrl]);
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push("/login");
+  //   }
+  // }, [isAuthenticated, router]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gray-50">
