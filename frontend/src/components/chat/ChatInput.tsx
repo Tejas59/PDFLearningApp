@@ -4,15 +4,17 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Brain, Paperclip, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSendMessage } from "@/api/message.api";
 
 interface ChatInputProps {
-  onSubmit?: (message: string) => void;
   isLoading?: boolean;
   setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
   sidebarOpen: boolean;
 }
 
-const ChatInput = ({ onSubmit, isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
+const ChatInput = ({ isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
+  const { mutate, data } = useSendMessage();
+  console.log(data);
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -44,13 +46,14 @@ const ChatInput = ({ onSubmit, isLoading, setFileUrl, sidebarOpen }: ChatInputPr
   const removeFile = () => {
     setFile(null);
     setError(null);
+    setFileUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() || file) {
-      onSubmit?.(input);
+      mutate({ message: input, file: file ?? undefined });
       setInput("");
       setFile(null);
     }
@@ -134,7 +137,7 @@ const ChatInput = ({ onSubmit, isLoading, setFileUrl, sidebarOpen }: ChatInputPr
               type="button"
               variant="ghost"
               size="icon"
-              disabled={isLoading}
+              disabled={isLoading || !file}
               className="h-9 w-9 rounded-md border border-gray-300"
             >
               <Brain className="h-5 w-5 text-gray-600" />
