@@ -8,12 +8,15 @@ import { cn } from "@/lib/utils";
 interface ChatInputProps {
   onSubmit?: (message: string) => void;
   isLoading?: boolean;
+  setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  sidebarOpen: boolean;
 }
 
-const ChatInput = ({ onSubmit, isLoading }: ChatInputProps) => {
+const ChatInput = ({ onSubmit, isLoading, setFileUrl, sidebarOpen }: ChatInputProps) => {
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,9 +31,12 @@ const ChatInput = ({ onSubmit, isLoading }: ChatInputProps) => {
         setError("Only PDF files are allowed.");
         e.target.value = "";
         setFile(null);
+        setFileUrl(null);
       } else {
         setError(null);
         setFile(selectedFile);
+        const blobUrl = URL.createObjectURL(selectedFile);
+        setFileUrl(blobUrl);
       }
     }
   };
@@ -67,7 +73,10 @@ const ChatInput = ({ onSubmit, isLoading }: ChatInputProps) => {
 
   return (
     <div
-      className={`w-full max-w-4xl md:ml-64 rounded-xl bg-[#f4f4f6] py-4 px-4 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]`}
+      className={cn(
+        "w-full max-w-4xl rounded-xl bg-[#f4f4f6] py-4 px-4 shadow-[0_-1px_6px_rgba(0,0,0,0.05)] transition-all duration-300",
+        sidebarOpen ? "md:ml-64" : "md:ml-0"
+      )}
     >
       <form onSubmit={handleSubmit} className="w-full">
         <input
@@ -110,7 +119,6 @@ const ChatInput = ({ onSubmit, isLoading }: ChatInputProps) => {
 
         <div className="mt-2 flex items-center justify-between">
           <div className="flex gap-2">
-            {/* Paperclip button to trigger file upload */}
             <Button
               type="button"
               variant="ghost"

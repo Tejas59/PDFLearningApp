@@ -1,16 +1,11 @@
 "use client";
-import { usePathname} from "next/navigation";
-import React, { useState } from "react";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { isToday, isYesterday, subDays, isAfter } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import {
-  Menu,
-  MessageSquarePlus,
-  PanelLeft,
-  Trash2,
-} from "lucide-react";
+import { Menu, MessageSquarePlus, PanelLeft, Trash2 } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import {
   Sheet,
@@ -19,7 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-
 
 interface Chat {
   _id: string;
@@ -32,12 +26,12 @@ interface SidebarSectionProps {
   pathname: string;
 }
 
-const ChatSidebar = () => {
+const ChatSidebar = ({ closeSidebar }: { closeSidebar: boolean }) => {
   const pathname = usePathname();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const chats = [{}]; 
+  const chats = [{}];
   const todayChats: Chat[] = [];
   const yesterdayChats: Chat[] = [];
   const last30DaysChats: Chat[] = [];
@@ -59,6 +53,10 @@ const ChatSidebar = () => {
       olderChats.push(chat);
     }
   });
+
+  useEffect(() => {
+    setSidebarOpen(closeSidebar);
+  }, [closeSidebar]);
 
   const SidebarSection = ({ title, chats, pathname }: SidebarSectionProps) => {
     if (chats.length === 0) return null;
@@ -165,7 +163,7 @@ const ChatSidebar = () => {
           </SheetContent>
         </Sheet>
         <div className="text-2xl font-semibold text-gray-700 mx-auto">
-          deepseek
+          Tejas Vaidya
         </div>
         <div className="w-10" />
       </div>
