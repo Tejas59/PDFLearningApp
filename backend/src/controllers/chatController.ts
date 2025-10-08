@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { chatModel } from "../models/chatModel";
 import { conversationModel } from "@/models/conversionModel";
 
-exports.getChats = async (req: Request, res: Response) => {
+
+
+export const getChats = async (req: Request, res: Response) => {
     try {
-        const chats = await chatModel.find({ userId: req.user.id }).sort({
+        const chats = await chatModel.find({ userId: (req as any).user.id }).sort({
             updateAt: -1,
         });
         if (!chats) {
@@ -17,9 +19,10 @@ exports.getChats = async (req: Request, res: Response) => {
     }
 };
 
-exports.createChat = async (req: Request, res: Response) => {
+export const createChat = async (req: Request, res: Response) => {
     try {
-        const userId = req.user.id;
+        const userId = (req as any).user.id
+        console.log({userId});
         const { title, description } = req.body;
         const chat = new chatModel({
             userId: userId,
@@ -32,14 +35,15 @@ exports.createChat = async (req: Request, res: Response) => {
             .status(201)
             .json({ chat, message: "chatModel created successfully", success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        res.status(500).json({ error: errorMessage });
     }
 };
 
-exports.getChat = async (req: Request, res: Response) => {
+export const getChat = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        const chat = await chatModel.findOne({ _id: id, userId: req.user.id });
+        const chat = await chatModel.findOne({ _id: id, userId: (req as any).user.id });
         if (!chat) {
             return res.status(401).json({ error: "chats not found" });
         }
@@ -57,14 +61,15 @@ exports.getChat = async (req: Request, res: Response) => {
             success: true,
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        res.status(500).json({ error: errorMessage });
     }
 };
 
-exports.deleteChat = async (req: Request, res: Response) => {
+export const deleteChat = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        const chat = await chatModel.findOne({ _id: id, userId: req.user.id });
+        const chat = await chatModel.findOne({ _id: id, userId: (req as any).user.id });
 
         if (!chat) {
             return res.status(401).json({ error: "chats not found" });
@@ -75,6 +80,7 @@ exports.deleteChat = async (req: Request, res: Response) => {
 
         res.json({ success: true, message: "chat deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        res.status(500).json({ error: errorMessage });
     }
 };

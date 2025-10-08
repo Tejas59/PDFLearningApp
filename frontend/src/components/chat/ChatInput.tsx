@@ -4,21 +4,28 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Brain, Paperclip, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSendMessage } from "@/api/message.api";
 import { userAuthStore } from "@/store/userAuthStore";
 import { useGenerateQuiz } from "@/api/quiz.api";
 import { useRouter } from "next/navigation";
 import { useQuizStore } from "@/store/quizStore";
 
 interface ChatInputProps {
-  setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
-  sidebarOpen: boolean;
+  onSubmit: (message: string) => void;
+  setFileUrl?: React.Dispatch<React.SetStateAction<string | null>>;
+  sidebarOpen?: boolean;
+  isLoading?: boolean;
+  hideFileInputAndQuizMode?: boolean;
 }
 
-const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
+const ChatInput = ({
+  onSubmit,
+  setFileUrl,
+  sidebarOpen,
+  isLoading,
+  hideFileInputAndQuizMode,
+}: ChatInputProps) => {
   const router = useRouter();
   const { setQuizData } = useQuizStore();
-  const { mutateAsync, isPending } = useSendMessage();
   const { mutateAsync: quizMuation } = useGenerateQuiz();
   const { isAuthenticated } = userAuthStore();
   const { setquizFile } = useQuizStore();
@@ -26,14 +33,13 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<unknown>(null);
   const [quizMode, setQuizMode] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileClick = () => {
-    if (!isPending) fileInputRef.current?.click();
+    if (!isLoading) fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,14 +49,18 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
         setError("Only PDF files are allowed.");
         e.target.value = "";
         setFile(null);
-        setFileUrl(null);
         setquizFile(null);
+        if (setFileUrl) {
+          setFileUrl(null);
+        }
       } else {
         setError(null);
         setFile(selectedFile);
         setquizFile(selectedFile);
         const blobUrl = URL.createObjectURL(selectedFile);
-        setFileUrl(blobUrl);
+        if (setFileUrl) {
+          setFileUrl(blobUrl);
+        }
       }
     }
   };
@@ -58,7 +68,9 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
   const removeFile = () => {
     setFile(null);
     setError(null);
-    setFileUrl(null);
+    if (setFileUrl) {
+      setFileUrl(null);
+    }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,12 +82,10 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
       setQuizData(res.quiz);
       router.push("/quiz");
     } else {
-      if (!input.trim() && !file) return;
-      const res = await mutateAsync({
-        message: input,
-        file: file ?? undefined,
-      });
-      setData(res);
+      if (input.trim()) {
+        onSubmit(input);
+        setInput("");
+      }
     }
     setInput("");
     setFile(null);
@@ -138,42 +148,48 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isPending || quizMode}
+          disabled={isLoading || quizMode}
           rows={1}
         />
 
         <div className="mt-2 flex items-center justify-between">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled={isPending || !!file}
-              onClick={handleFileClick}
-              className="h-9 w-9 rounded-md border border-gray-300"
-            >
-              <Paperclip className="h-5 w-5 text-gray-600" />
-            </Button>
+         
+            <div className="flex gap-2">
+               {!hideFileInputAndQuizMode && (<>
+               
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={isLoading || !!file}
+                onClick={handleFileClick}
+                className="h-9 w-9 rounded-md border border-gray-300"
+              >
+                <Paperclip className="h-5 w-5 text-gray-600" />
+              </Button>
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled={isPending || !file || !isAuthenticated}
-              className={`h-9 w-9 rounded-md border border-gray-3001 ${
-                quizMode && "bg-black text-white hover:!bg-black cursor-default"
-              }`}
-              onClick={() => setQuizMode(!quizMode)}
-            >
-              <Brain className="h-5 w-5 text-gray-600" />
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={isLoading || !file || !isAuthenticated}
+                className={`h-9 w-9 rounded-md border border-gray-3001 ${
+                  quizMode &&
+                  "bg-black text-white hover:!bg-black cursor-default"
+                }`}
+                onClick={() => setQuizMode(!quizMode)}
+              >
+                <Brain className="h-5 w-5 text-gray-600" />
+              </Button>
+              </>)}
+            </div>
+          
 
           <Button
             type="submit"
             variant="ghost"
             size="icon"
-            disabled={isPending || (!input.trim() && !file)}
+            disabled={isLoading || (!input.trim() && !file)}
             className={cn(
               "bg-blue-600 text-white h-9 w-9 p-2 rounded-md ",
               !input.trim() && !file && "opacity-50 cursor-not-allowed"

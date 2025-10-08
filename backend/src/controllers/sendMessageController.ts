@@ -11,7 +11,7 @@ export const handleSendMessage = async (req: Request, res: Response) => {
         if (!userMessage && !file) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide a message or file",
+                message: "Please provide a message or file"
             });
         }
 

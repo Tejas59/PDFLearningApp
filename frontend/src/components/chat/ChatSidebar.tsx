@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import { isToday, isYesterday, subDays, isAfter } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ import { useLogout } from "@/api/auth.api";
 import { userAuthStore } from "@/store/userAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { useChatStore } from "@/store/chatstore";
 
 interface Chat {
   _id: string;
@@ -54,8 +55,21 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = userAuthStore();
+   const {
+     chats,
+     fetchChats,
+     createChat,
+     deleteChat,
+     isChatLoading,
+     isLoading,
+   } = useChatStore();
 
-  const chats = [{}];
+
+
+   useEffect(() => {
+     fetchChats();
+   }, [fetchChats]);
+
   const todayChats: Chat[] = [];
   const yesterdayChats: Chat[] = [];
   const last30DaysChats: Chat[] = [];
@@ -77,6 +91,29 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       olderChats.push(chat);
     }
   });
+
+    const handleCreateChat = async () => {
+      try {
+        const chat = await createChat("New Chat");
+        router.push(`/chat/${chat?._id}`);
+      } catch (error) {
+        console.log(error);
+        toast.error("failed to create chat");
+      }
+    };
+
+    const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        await deleteChat(chatId);
+        if (pathname === `/chat/${chatId}`) {
+          router.push("/");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   const handleLogout = async () => {
     try {
@@ -114,6 +151,7 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
                 variant="ghost"
                 size="icon"
                 className="opacity-0 group-hover:opacity-100 h-8 w-8"
+                onClick={(e) => handleDeleteChat(chat?._id, e)}
               >
                 <Trash2 className="h-4 w-4 text-gray-500" />
               </Button>
@@ -140,6 +178,7 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       <div className="p-4">
         <Button
           variant="outline"
+          onClick={handleCreateChat}
           className="justify-start gap-2 bg-[#dce9ff] px-6 py-6 rounded-xl text-blue-500 hover:bg-blue-100"
         >
           <MessageSquarePlus className="h-5 w-5" />

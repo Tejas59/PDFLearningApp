@@ -3,19 +3,36 @@ import ChatInput from "@/components/chat/ChatInput";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { useChatStore } from "@/store/chatstore";
+import { userAuthStore } from "@/store/userAuthStore";
+import toast from "react-hot-toast";
 
 export default function Home() {
-  
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleClosePdf = () => setFileUrl(null);
+  const router = useRouter();
+   const { isAuthenticated, isLoading } = userAuthStore();
+   const { createChat, isLoading: createChatLoading } = useChatStore();
+   const handleSendMesaage = async (message: string) => {
+     if (isAuthenticated && !createChatLoading) {
+       try {
+         const chat = await createChat("New Chat");
+         router.push(
+           `/chat/${chat?._id}?message=${encodeURIComponent(message)}`
+         );
+       } catch (error) {
+         console.log(error);
+         toast.error("failed to create chat");
+       }
+     }
+   };
 
   useEffect(() => {
     setSidebarOpen(!fileUrl);
   }, [fileUrl]);
-
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gray-50">
@@ -29,11 +46,15 @@ export default function Home() {
           }`}
         >
           <div className="flex flex-col items-center gap-2 mt-20 md:mt-32 text-center px-4">
-            <h2 className="text-2xl font-bold">Hi, I&apos;m Tejas Vaidya.</h2>
+            <h2 className="text-2xl font-bold ">Hi, I&apos;m Tejas Vaidya.</h2>
             <p className="text-muted-foreground">How can I help you today?</p>
           </div>
           <div className="w-full flex justify-center items-end p-6 md:p-8">
-            <ChatInput setFileUrl={setFileUrl} sidebarOpen={sidebarOpen} />
+            <ChatInput
+              setFileUrl={setFileUrl}
+              sidebarOpen={sidebarOpen}
+              onSubmit={handleSendMesaage}
+            />
           </div>
 
           {fileUrl && (
