@@ -34,7 +34,6 @@ export const RegistrationModal = ({
       if (res.ok) {
         router.push("/login");
       }
-      console.log("Registration success:", res);
     } catch (err) {
       console.error("Registration failed:", err);
     }

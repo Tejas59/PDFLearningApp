@@ -61,32 +61,21 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
     setFileUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
-  console.log({ quizMode });
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (quizMode && file) {
-      try {
-        const res = await quizMuation({
-          file: file ?? undefined,
-        });
-        setQuizData(res.quiz);
-        router.push("/quiz");
-        console.log("AI Response:", res.message);
-      } catch (err) {
-        console.error("Mutation error:", err);
-      }
+      const res = await quizMuation({
+        file: file ?? undefined,
+      });
+      setQuizData(res.quiz);
+      router.push("/quiz");
     } else {
       if (!input.trim() && !file) return;
-      try {
-        const res = await mutateAsync({
-          message: input,
-          file: file ?? undefined,
-        });
-        console.log("AI Response:", res.message);
-        setData(res);
-      } catch (err) {
-        console.error("Mutation error:", err);
-      }
+      const res = await mutateAsync({
+        message: input,
+        file: file ?? undefined,
+      });
+      setData(res);
     }
     setInput("");
     setFile(null);
@@ -172,7 +161,7 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
               size="icon"
               disabled={isPending || !file || !isAuthenticated}
               className={`h-9 w-9 rounded-md border border-gray-3001 ${
-                quizMode && "bg-black text-white"
+                quizMode && "bg-black text-white hover:!bg-black cursor-default"
               }`}
               onClick={() => setQuizMode(!quizMode)}
             >

@@ -6,7 +6,6 @@ const message = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 message.post("/", upload.single("file"), async (req: Request, res: Response) => {
-    console.log("File:", req?.file); 
     await handleSendMessage(req, res);
 });
 

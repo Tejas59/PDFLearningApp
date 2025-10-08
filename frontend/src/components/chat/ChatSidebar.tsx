@@ -27,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { Avatar, AvatarFallback} from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { useLogout } from "@/api/auth.api";
 import { userAuthStore } from "@/store/userAuthStore";
 import { useRouter } from "next/navigation";
@@ -80,8 +80,7 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
 
   const handleLogout = async () => {
     try {
-      const res = await logoutMutation.mutateAsync();
-      console.log("Logout success:", res);
+      await logoutMutation.mutateAsync();
       logout();
       toast.success("Logged out successfully");
     } catch (err) {
@@ -150,6 +149,15 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
 
       <ScrollArea className="flex-1 px-2">
         <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className=" text-sm font-medium  w-full "
+            onClick={() => router.push("/dashboard")}
+          >
+            Progress Dashboard
+          </Button>
           <SidebarSection
             title="today"
             chats={todayChats}

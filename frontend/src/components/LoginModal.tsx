@@ -23,8 +23,6 @@ export const LoginModal = ({
   const router = useRouter();
   const loginMutation = useLogin();
   const setUser = userAuthStore((state) => state.setUser);
-  const { data } = loginMutation;
-  console.log("data", data);
 
   const [formData, setFormData] = useState({
     email: "",
