@@ -6,6 +6,9 @@ import { Brain, Paperclip, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSendMessage } from "@/api/message.api";
 import { userAuthStore } from "@/store/userAuthStore";
+import { useGenerateQuiz } from "@/api/quiz.api";
+import { useRouter } from "next/navigation";
+import { useQuizStore } from "@/store/quizStore";
 
 interface ChatInputProps {
   setFileUrl: React.Dispatch<React.SetStateAction<string | null>>;
@@ -13,8 +16,12 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
+  const router = useRouter();
+  const { setQuizData } = useQuizStore();
   const { mutateAsync, isPending } = useSendMessage();
-  const {isAuthenticated} = userAuthStore();
+  const { mutateAsync: quizMuation } = useGenerateQuiz();
+  const { isAuthenticated } = userAuthStore();
+  const { setquizFile } = useQuizStore();
 
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -22,7 +29,6 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
   const [data, setData] = useState<unknown>(null);
   const [quizMode, setQuizMode] = useState(false);
 
-  console.log({ data });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,9 +44,11 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
         e.target.value = "";
         setFile(null);
         setFileUrl(null);
+        setquizFile(null);
       } else {
         setError(null);
         setFile(selectedFile);
+        setquizFile(selectedFile);
         const blobUrl = URL.createObjectURL(selectedFile);
         setFileUrl(blobUrl);
       }
@@ -53,22 +61,33 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
     setFileUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
-
+  console.log({ quizMode });
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() && !file) return;
-
-    try {
-      const res = await mutateAsync({
-        message: input,
-        file: file ?? undefined,
-      });
-      console.log("AI Response:", res.message);
-      setData(res);
-    } catch (err) {
-      console.error("Mutation error:", err);
+    if (quizMode && file) {
+      try {
+        const res = await quizMuation({
+          file: file ?? undefined,
+        });
+        setQuizData(res.quiz);
+        router.push("/quiz");
+        console.log("AI Response:", res.message);
+      } catch (err) {
+        console.error("Mutation error:", err);
+      }
+    } else {
+      if (!input.trim() && !file) return;
+      try {
+        const res = await mutateAsync({
+          message: input,
+          file: file ?? undefined,
+        });
+        console.log("AI Response:", res.message);
+        setData(res);
+      } catch (err) {
+        console.error("Mutation error:", err);
+      }
     }
-
     setInput("");
     setFile(null);
   };
@@ -180,5 +199,3 @@ const ChatInput = ({ setFileUrl, sidebarOpen }: ChatInputProps) => {
 };
 
 export default ChatInput;
-
-

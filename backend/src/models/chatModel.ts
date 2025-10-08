@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const chatSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserModal",
+        ref: "UserModel",
         required: true,
     },
     title: {
@@ -17,4 +17,4 @@ const chatSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-export const chatModal = mongoose.model("ChatModal", chatSchema);
+export const chatModel = mongoose.model("ChatModel", chatSchema);

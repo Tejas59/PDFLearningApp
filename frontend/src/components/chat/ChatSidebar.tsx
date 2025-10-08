@@ -27,10 +27,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback} from "@radix-ui/react-avatar";
 import { useLogout } from "@/api/auth.api";
 import { userAuthStore } from "@/store/userAuthStore";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 interface Chat {
   _id: string;
@@ -82,6 +83,7 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       const res = await logoutMutation.mutateAsync();
       console.log("Logout success:", res);
       logout();
+      toast.success("Logged out successfully");
     } catch (err) {
       console.error("Logout failed:", err);
     }

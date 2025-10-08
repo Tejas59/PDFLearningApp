@@ -36,11 +36,11 @@ export const LoginModal = ({
         email: formData.email,
         password: formData.password,
       });
-      if (res.user) {
+      if (res.success) {
         setUser(res.user);
+        router.push("/");
       }
-      console.log("Login success:", res.user);
-      router.push("/");
+    
     } catch (err) {
       console.error("Login failed:", err);
     }
