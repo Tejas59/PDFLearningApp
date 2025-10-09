@@ -190,7 +190,11 @@ const ChatInput = ({
             type="submit"
             variant="ghost"
             size="icon"
-            disabled={isLoading || (!input.trim() && !file) || !quizMode}
+            disabled={
+              isLoading ||
+              (file && !quizMode) ||
+              (!quizMode && !file && !input?.trim())
+            }
             className={cn(
               "bg-blue-600 text-white h-9 w-9 p-2 rounded-md ",
               !input.trim() && !file && "opacity-50 cursor-not-allowed"
