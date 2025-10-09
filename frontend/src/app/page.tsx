@@ -54,6 +54,7 @@ export default function Home() {
               setFileUrl={setFileUrl}
               sidebarOpen={sidebarOpen}
               onSubmit={handleSendMesaage}
+              isLoading={isLoading || createChatLoading}
             />
           </div>
 

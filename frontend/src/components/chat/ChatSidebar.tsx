@@ -55,20 +55,18 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = userAuthStore();
-   const {
-     chats,
-     fetchChats,
-     createChat,
-     deleteChat,
-     isChatLoading,
-     isLoading,
-   } = useChatStore();
+  console.log(isAuthenticated)
+  const {
+    chats,
+    fetchChats,
+    createChat,
+    deleteChat,
+    isChatLoading,
+  } = useChatStore();
 
-
-
-   useEffect(() => {
-     fetchChats();
-   }, [fetchChats]);
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
   const todayChats: Chat[] = [];
   const yesterdayChats: Chat[] = [];
@@ -92,33 +90,34 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
     }
   });
 
-    const handleCreateChat = async () => {
-      try {
-        const chat = await createChat("New Chat");
-        router.push(`/chat/${chat?._id}`);
-      } catch (error) {
-        console.log(error);
-        toast.error("failed to create chat");
-      }
-    };
+  const handleCreateChat = async () => {
+    try {
+      const chat = await createChat("New Chat");
+      router.push(`/chat/${chat?._id}`);
+    } catch (error) {
+      console.log(error);
+      toast.error("failed to create chat");
+    }
+  };
 
-    const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      try {
-        await deleteChat(chatId);
-        if (pathname === `/chat/${chatId}`) {
-          router.push("/");
-        }
-      } catch (error) {
-        console.log(error);
+  const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await deleteChat(chatId);
+      if (pathname === `/chat/${chatId}`) {
+        router.push("/");
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
       logout();
+      router.push("/login");
       toast.success("Logged out successfully");
     } catch (err) {
       console.error("Logout failed:", err);
@@ -178,6 +177,7 @@ const ChatSidebar = ({ setSidebarOpen, sidebarOpen }: chatSidebarPorps) => {
       <div className="p-4">
         <Button
           variant="outline"
+          disabled={isChatLoading}
           onClick={handleCreateChat}
           className="justify-start gap-2 bg-[#dce9ff] px-6 py-6 rounded-xl text-blue-500 hover:bg-blue-100"
         >
