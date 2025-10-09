@@ -101,3 +101,7 @@ Frontend:
 ### Use of any LLM tools? For what purposes?.
 I have used the LLM tools like chatGpt, gemini to understand the concepts of different library like zustand, Tanstack query, and different component and for the code generation I have also used the Copilot for code generation. 
 
+### Testing 
+- Uplaod pdf and select the quiz mode by clicking the brain icon if you want to quiz yourself on the pdf
+
+- If you want to chat you can directly type mesaage and send it 
