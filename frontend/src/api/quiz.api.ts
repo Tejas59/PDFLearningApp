@@ -1,4 +1,4 @@
-import { QuizData } from "@/components/QuizRendere";
+import { QuizData } from "@/components/QuizRenderer";
 import { apiFetch } from "@/lib/api";
 import { QueryFunctionContext, useMutation, useQuery } from "@tanstack/react-query";
 

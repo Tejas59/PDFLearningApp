@@ -46,10 +46,7 @@ export default function QuizRenderer() {
     setUserAnswers((prev) => ({ ...prev, [key]: value }));
   };
 
-  const score = quiz?.mcqs.reduce((acc, q, i) => {
-    return acc + (userAnswers[`mcq-${i}`] === q.answer ? 1 : 0);
-  }, 0);
-
+ 
   const allAnswered =
     quiz &&
     [
@@ -172,7 +169,7 @@ export default function QuizRenderer() {
       </section>
 
       <div className="flex items-center gap-4">
-        {!submitted ? (
+        {!submitted && (
           <button
             onClick={handleSubmit}
             disabled={!allAnswered}
@@ -182,10 +179,6 @@ export default function QuizRenderer() {
           >
             Submit Answers
           </button>
-        ) : (
-          <div className="font-semibold">
-            Score: {score} / {quiz?.mcqs.length}
-          </div>
         )}
 
         {submitted && (

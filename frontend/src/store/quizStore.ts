@@ -1,5 +1,5 @@
 // store/quizStore.ts
-import { QuizData } from "@/components/QuizRendere";
+import { QuizData } from "@/components/QuizRenderer";
 import { create } from "zustand";
 
 interface QuizState {
