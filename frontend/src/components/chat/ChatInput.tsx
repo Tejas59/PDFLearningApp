@@ -71,6 +71,7 @@ const ChatInput = ({
     if (setFileUrl) {
       setFileUrl(null);
     }
+    if(quizMode) setQuizMode(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,6 +106,7 @@ const ChatInput = ({
       textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
     }
   }, [input]);
+
 
   return (
     <div
@@ -148,48 +150,47 @@ const ChatInput = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isLoading || quizMode}
+          disabled={isLoading || quizMode || !!file}
           rows={1}
         />
 
         <div className="mt-2 flex items-center justify-between">
-         
-            <div className="flex gap-2">
-               {!hideFileInputAndQuizMode && (<>
-               
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                disabled={isLoading || !!file}
-                onClick={handleFileClick}
-                className="h-9 w-9 rounded-md border border-gray-300"
-              >
-                <Paperclip className="h-5 w-5 text-gray-600" />
-              </Button>
+          <div className="flex gap-2">
+            {!hideFileInputAndQuizMode && (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isLoading || !!file}
+                  onClick={handleFileClick}
+                  className="h-9 w-9 rounded-md border border-gray-300"
+                >
+                  <Paperclip className="h-5 w-5 text-gray-600" />
+                </Button>
 
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                disabled={isLoading || !file || !isAuthenticated}
-                className={`h-9 w-9 rounded-md border border-gray-3001 ${
-                  quizMode &&
-                  "bg-black text-white hover:!bg-black cursor-default"
-                }`}
-                onClick={() => setQuizMode(!quizMode)}
-              >
-                <Brain className="h-5 w-5 text-gray-600" />
-              </Button>
-              </>)}
-            </div>
-          
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isLoading || !file || !isAuthenticated}
+                  className={`h-9 w-9 rounded-md border border-gray-3001 ${
+                    quizMode &&
+                    "bg-black text-white hover:!bg-black cursor-default"
+                  }`}
+                  onClick={() => setQuizMode(!quizMode)}
+                >
+                  <Brain className="h-5 w-5 text-gray-600" />
+                </Button>
+              </>
+            )}
+          </div>
 
           <Button
             type="submit"
             variant="ghost"
             size="icon"
-            disabled={isLoading || (!input.trim() && !file)}
+            disabled={isLoading || (!input.trim() && !file) || !quizMode}
             className={cn(
               "bg-blue-600 text-white h-9 w-9 p-2 rounded-md ",
               !input.trim() && !file && "opacity-50 cursor-not-allowed"
