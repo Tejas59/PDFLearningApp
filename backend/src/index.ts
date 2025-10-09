@@ -23,7 +23,8 @@ app.use(
 
 app.use(process.env.APP_PREFIX_PATH ?? "/api", routes);
 
-const APP_PORT = process.env.APP_PORT || 5000;
-app.listen(APP_PORT, () => {
-    console.log(`server is running on the port ${APP_PORT}`);
+const PORT = process.env.PORT || process.env.APP_PORT || 8080;
+
+app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
 });
