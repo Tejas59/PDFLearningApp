@@ -2,6 +2,8 @@
 
 A full-stack web application for learning and practicing concepts from PDFs, including quizzes and AI-powered tools.
 
+Live demo https://pdf-learning-app.vercel.app
+
 ---
 
 ## 🛠 Setup
