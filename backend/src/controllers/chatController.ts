@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { chatModel } from "../models/chatModel";
-import { conversationModel } from "@/models/conversionModel";
+import { conversationModel } from "../models/conversionModel";
 
 
 
@@ -22,7 +22,6 @@ export const getChats = async (req: Request, res: Response) => {
 export const createChat = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.id
-        console.log({userId});
         const { title, description } = req.body;
         const chat = new chatModel({
             userId: userId,

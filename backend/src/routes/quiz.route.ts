@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
 import { generateQuizFromPDF, evaluateQuiz, newQuizgenerate, fetchQuizStats } from "../controllers/quizController";
-import authMiddleware from "@/middleware/auth";
+import authMiddleware from "../middleware/auth";
 
 const quiz = express.Router();
 const upload = multer({ dest: "uploads/" });

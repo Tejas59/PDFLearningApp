@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { chatModel } from "../models/chatModel";
 import { conversationModel } from "../models/conversionModel";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { model } from "@/utils/gemini";
+import { model } from "../utils/gemini";
 
 
 

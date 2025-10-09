@@ -1,5 +1,5 @@
-import { getConversation, sendMessage } from "@/controllers/conversionController";
-import authMiddleware from "@/middleware/auth";
+import { getConversation, sendMessage } from "../controllers/conversionController";
+import authMiddleware from "../middleware/auth";
 import express, { Request, Response } from "express";
 
 const conversation = express.Router();

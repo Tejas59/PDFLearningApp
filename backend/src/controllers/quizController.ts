@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import { model } from "../utils/gemini";
-import { quizModel } from "@/models/quizModel";
+import { quizModel } from "../models/quizModel";
 
 
 export const generateQuizFromPDF = async (req: Request, res: Response) => {

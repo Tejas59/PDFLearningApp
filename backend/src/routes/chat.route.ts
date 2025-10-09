@@ -1,5 +1,5 @@
-import { createChat, deleteChat, getChat, getChats } from "@/controllers/chatController";
-import authMiddleware from "@/middleware/auth";
+import { createChat, deleteChat, getChat, getChats } from "../controllers/chatController";
+import authMiddleware from "../middleware/auth";
 import express, { Request, Response } from "express";
 
 const chat = express.Router();
